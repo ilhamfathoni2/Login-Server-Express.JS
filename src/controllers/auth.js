@@ -131,3 +131,98 @@ exports.checkAuth = async (req, res) => {
     });
   }
 };
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const data = await user.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "password"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      message: "Get data user success",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const { idUser } = req.user;
+    const { id } = req.params;
+
+    await user.destroy({
+      where: {
+        id,
+      },
+      idUser,
+    });
+    const data = await user.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "password"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      message: "Delete user success",
+      data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    await user.update(
+      {
+        fullName: req.body.fullName,
+        email: req.body.email,
+        phone: req.body.phone,
+        address: req.body.address,
+      },
+
+      {
+        where: {
+          id: req.user.id,
+        },
+      }
+    );
+    const data = await user.findOne({
+      where: {
+        id: req.user.id,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "password"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      message: "Update success",
+      datas: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
